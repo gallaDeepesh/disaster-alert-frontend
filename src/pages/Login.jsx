@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+
+  //React sends login request
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log("Attempting login with:", email);
@@ -17,11 +20,35 @@ const Login = () => {
       });
       console.log("Success:", response.data);
       alert("Login Successful!");
+
+      localStorage.setItem("token",response.data.token)
+      localStorage.setItem("role",response.data.role)
+
+      redirectUser(response.data.role)
+
     } catch (error) {
       console.error("Login Error:", error);
       alert("Login Failed. Check console for details.");
     }
   };
+
+  const navigate = useNavigate()
+
+  const redirectUser = (role)=>{
+
+  if(role === "ADMIN"){
+    navigate("/admin/test")
+  }
+
+  else if(role === "RESPONDER"){
+    navigate("/responder/test")
+  }
+
+  else if(role === "CITIZEN"){
+    navigate("/citizen/test")
+  }
+
+}
 
   return (
     <div style={{textAlign: "center", marginTop: "100px", fontFamily: "sans-serif" }}>
