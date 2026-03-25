@@ -35,6 +35,19 @@ export default function Login() {
     return () => clearInterval(t);
   }, []);
 
+  // adding latitude,longitude
+  navigator.geolocation.getCurrentPosition(async (position) => {
+
+  const latitude = position.coords.latitude;
+  const longitude = position.coords.longitude;
+
+  await apiService.put("/api/citizen/location", {
+    latitude,
+    longitude
+  });
+
+});
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
