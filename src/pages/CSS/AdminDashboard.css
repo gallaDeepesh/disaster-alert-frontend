@@ -481,7 +481,7 @@ body {
 }
 
 .panel {
-  background: var(--bg-card);
+  background: black;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
@@ -499,12 +499,13 @@ body {
   text-transform: uppercase;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,0.01);
+  background: black;
 }
 
 .panel-icon { color: var(--red); }
 
-.panel-list { padding: 4px 0; }
+.panel-list { padding: 4px 0;
+    background-color: black; }
 
 .panel-row {
   display: flex;
@@ -530,8 +531,9 @@ body {
 .panel-row-loc {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
   flex-shrink: 0;
+  color: white;
+
 }
 
 .alert-dot {

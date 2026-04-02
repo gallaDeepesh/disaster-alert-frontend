@@ -20,6 +20,10 @@ export const getRescueTasks = () => {
   return api.get("/admin/rescue-tasks");
 };
 
+export const getRescueRequests = () => {
+  return api.get("/admin/rescue-request");
+};
+
 export const createAlert = (data) => {
   return api.post("/admin/create-alert", data);
 };

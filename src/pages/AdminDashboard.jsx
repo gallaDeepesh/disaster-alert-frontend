@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { key: "overview", label: "Overview", icon: "◈" },
   { key: "disasters", label: "Disasters", icon: "⚡" },
   { key: "alerts", label: "Alerts", icon: "◉" },
+  { key: "requests", label: "Rescue Requests", icon: "🆘" }, // Added this
   { key: "tasks", label: "Rescue Tasks", icon: "◎" },
   { key: "responders", label: "Responders", icon: "◷" },
 ];
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
   const [toastMsg, setToastMsg] = useState(null);
   const [ticker, setTicker] = useState(0);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [requests, setRequests] = useState([]);
 
   useEffect(() => {
     fetchAll();
@@ -35,29 +37,33 @@ export default function AdminDashboard() {
     if (activeTab === "alerts" && alerts.length === 0) fetchAlerts();
     if (activeTab === "tasks" && tasks.length === 0) fetchTasks();
     if (activeTab === "responders" && responders.length === 0) fetchResponders();
+    if (activeTab === "requests" && requests.length === 0) fetchRequests(); // Added this
   }, [activeTab]);
 
+
   async function fetchAll() {
-    setLoading(true);
-    try {
-      const [s, d, a, t, r] = await Promise.all([
-        apiService.get("/api/admin/dashboard"),
-        apiService.get("/api/admin/disasters"),
-        apiService.get("/api/admin/alerts"),
-        apiService.get("/api/admin/rescue-tasks"),
-        apiService.get("/api/admin/responders"),
-      ]);
-      setStats(s.data);
-      setDisasters(d.data);
-      setAlerts(a.data);
-      setTasks(t.data);
-      setResponders(r.data);
-    } catch (e) {
-      showToast("Failed to load dashboard data", "error");
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  try {
+    const [s, d, a, t, r, req] = await Promise.all([
+      apiService.get("/api/admin/dashboard"),
+      apiService.get("/api/admin/disasters"),
+      apiService.get("/api/admin/alerts"),
+      apiService.get("/api/admin/rescue-tasks"),
+      apiService.get("/api/admin/responders"),
+      apiService.get("/api/admin/rescue-request"), // New call
+    ]);
+    setStats(s.data);
+    setDisasters(d.data);
+    setAlerts(a.data);
+    setTasks(t.data);
+    setResponders(r.data);
+    setRequests(req.data); // Set state
+  } catch (e) {
+    showToast("Failed to load dashboard data", "error");
+  } finally {
+    setLoading(false);
   }
+}
   //Toggle Theme Function
   function toggleTheme() {
   const newTheme = theme === "dark" ? "light" : "dark";
@@ -91,6 +97,15 @@ export default function AdminDashboard() {
       setResponders(res.data);
     } catch {}
   }
+// New function to fetch rescue requests
+  async function fetchRequests() {
+  try {
+    const res = await apiService.get("/api/admin/rescue-request");
+    setRequests(res.data);
+  } catch (err) {
+    showToast("Failed to load rescue requests", "error");
+  }
+}
 
   async function handleCreateAlert(e) {
     e.preventDefault();
@@ -187,6 +202,7 @@ export default function AdminDashboard() {
               {activeTab === "overview" && (
                 <OverviewTab stats={statCards} disasters={disasters} alerts={alerts} tasks={tasks} />
               )}
+              {activeTab === "requests" && <RequestsTab requests={requests} />}
               {activeTab === "disasters" && <DisastersTab disasters={disasters} />}
               {activeTab === "alerts" && <AlertsTab alerts={alerts} />}
               {activeTab === "tasks" && <TasksTab tasks={tasks} />}
@@ -467,5 +483,52 @@ function RespondersTab({ responders }) {
         )}
       </div>
     </div>
+
+    );
+
+    /* ─── Rescue Requests Tab ─── */
+function RequestsTab({ requests }) {
+  return (
+    <div className="table-section">
+      <div className="table-toolbar">
+        <span>{requests.length} incoming help requests</span>
+      </div>
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Citizen</th>
+              <th>Location</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req, i) => (
+              <tr key={i}>
+                <td className="td-id">#{req.id}</td>
+                <td>{req.citizenName || req.user?.name || "Anonymous"}</td>
+                <td>{req.location || "Unknown"}</td>
+                <td className="td-msg">{req.description || "No details provided"}</td>
+                <td>
+                  <span className={`task-badge task-${(req.status || "new").toLowerCase()}`}>
+                    {req.status || "NEW"}
+                  </span>
+                </td>
+                <td className="td-date">
+                  {req.createdAt ? new Date(req.createdAt).toLocaleString() : "Recently"}
+                </td>
+              </tr>
+            ))}
+            {requests.length === 0 && (
+              <tr><td colSpan={6} className="empty-cell">No help requests found</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
+}
 }

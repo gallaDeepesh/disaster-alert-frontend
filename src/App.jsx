@@ -3,7 +3,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import CitizenDashboard from "./pages/CitizenDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ResponderDashboard from "./pages/ResponderDasnboard";
+import ResponderDashboard from "./pages/ResponderDashboard";
 
 function App() {
   return (

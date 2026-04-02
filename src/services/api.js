@@ -5,12 +5,12 @@ baseURL:"http://localhost:8080"
 })
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (token && token !== "undefined" && token !== "null") {
         config.headers.Authorization = `Bearer ${token}`;
     } else {
-        console.warn("API Request made without a valid JWT in LocalStorage");
+        console.warn("API Request made without a valid JWT in sessionStorage");
     }
 
     return config;
